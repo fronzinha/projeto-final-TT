@@ -7,12 +7,14 @@ import { ProgressBar } from 'primereact/progressbar'
 const Departamentos = () => {
 
   const [departamentos, setDepartamentos] = useState()
+  const [Loading, setLoading] = useState(true)
 
   const loadDepartamentos = async () => {
     try {
       const result = await getDepartamentos()
       console.log(result)
       setDepartamentos(result.data)
+      setLoading(false)
     } catch (e) {
       console.log('erro da api', e)
     }
@@ -29,6 +31,7 @@ const Departamentos = () => {
     <>
       <ProgressBar
         mode='indeterminate'
+        hidden={!Loading}
         className='!absolute top-0 left-0 w-full !h-[2px]'
       />
 
