@@ -44,6 +44,7 @@ const Departamentos = () => {
         value={departamentos}
         emptyMessage='Nenhum departamento encontrado'
         paginator rows={4}
+        loading={Loading}
       >
 
         <Column
