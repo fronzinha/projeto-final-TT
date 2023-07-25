@@ -1,23 +1,40 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
+import getDepartamentos from '../../services/departamentos'
+import { ProgressBar } from 'primereact/progressbar'
 
 const Departamentos = () => {
 
-  const departamentos = [
-    { 'id_departamento': 1, 'sigla': 'CPD', 'nome': 'Centro de Processamento de Dados' },
-    { 'id_departamento': 2, 'sigla': 'RH', 'nome': 'Recursos Humanos' },
-    { 'id_departamento': 3, 'sigla': 'FINANC', 'nome': 'Financeiro' },
-    { 'id_departamento': 4, 'sigla': 'DP', 'nome': 'Departamento. Pessoal' },
-    { 'id_departamento': 5, 'sigla': 'SO', 'nome': 'Security Office' },
-    { 'id_departamento': 6, 'sigla': 'SRE', 'nome': 'Site Reliability' },
-  ]
+  const [departamentos, setDepartamentos] = useState()
+
+  const loadDepartamentos = async () => {
+    try {
+      const result = await getDepartamentos()
+      console.log(result)
+      setDepartamentos(result.data)
+    } catch (e) {
+      console.log('erro da api', e)
+    }
+  }
+
+  // Monitora o state departamentos e caso null chama api
+  useEffect(() => {
+    if (!departamentos) {
+      loadDepartamentos()
+    }
+  }, [departamentos])
 
   return (
     <>
+      <ProgressBar
+        mode='indeterminate'
+        className='!absolute top-0 left-0 w-full !h-[2px]'
+      />
+
       <h1 className='text-x1 mt-6'>
         <i className='pi pi-list mr-3' />
-        Listagem de Departamentfdfos
+        Listagem de Departamentos
       </h1>
 
       <DataTable
