@@ -1,12 +1,17 @@
 import React, { useRef, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import { Message } from 'primereact/message'
+import { insertDepartamento } from '../../services/departamentos'
 
 const FormDepartamentos = () => {
 
+  const { id_departamento } = useParams()
+  const navigate = useNavigate()
+
   // Configurar States
-  const [name, setName] = useState('')
+  const [nome, setNome] = useState('')
   const [errorName, setErrorName] = useState(false)
 
   const [sigla, setSigla] = useState('')
@@ -25,7 +30,7 @@ const FormDepartamentos = () => {
     setErrorName(false)
     setErrorSigla(false)
 
-    if (name == '') {
+    if (nome == '') {
       setError('Preencha seu nome')
       setErrorName(true)
       nameInputRef.current.focus()
@@ -33,7 +38,7 @@ const FormDepartamentos = () => {
     }
 
     if (sigla == '') {
-      setError('Preencha a Silga')
+      setError('Preencha a Sigla')
       setErrorSigla(true)
       siglaInputRef.current.focus()
       return false
@@ -42,11 +47,27 @@ const FormDepartamentos = () => {
     return true
   }
 
+  const createDepartamento = async () => {
+    try {
+      await insertDepartamento({ nome, sigla })
+      navigate('/departamentos')
+
+    } catch (e) {
+      const { code } = e.response.data.exception.code
+      if (code === 'ER_DUP_ENTRY') {
+        setError('Registro duplicado na base de dados')
+      } else {
+        setError('Erro na inserção no registro')
+      }
+    }
+  }
+
+
   return (
     <>
       <h1 className='text-xl my-6'>
         <i className='pi pi-plus mr-4' />
-        Cadastro de Departamentos
+        {id_departamento ? 'Edição' : 'Cadastro'} de Departamentos
       </h1>
 
       <div className='flex mt-12'>
@@ -54,8 +75,8 @@ const FormDepartamentos = () => {
         <div className="p-float-label w-1/2 pr-2">
           <InputText
             id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
             className={`w-full !shadow-none ${errorName ? 'p-invalid' : ''}`}
             autoComplete='off'
             ref={nameInputRef}
@@ -82,11 +103,13 @@ const FormDepartamentos = () => {
 
           <Button
             type='submit'
-            label='Save'
+            label='Cadastrar'
             severity='info'
             icon='pi pi-check'
             onClick={() => {
-              formValidate()
+              if (formValidate()) {
+                createDepartamento()
+              }
             }}
           />
         </div>
