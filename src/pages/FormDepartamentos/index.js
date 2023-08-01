@@ -1,9 +1,9 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button'
 import { Message } from 'primereact/message'
-import { insertDepartamento } from '../../services/departamentos'
+import { getDepartamentoById, insertDepartamento, updateDepartamento } from '../../services/departamentos'
 
 const FormDepartamentos = () => {
 
@@ -47,21 +47,44 @@ const FormDepartamentos = () => {
     return true
   }
 
-  const createDepartamento = async () => {
+  const saveDepartamento = async () => {
     try {
-      await insertDepartamento({ nome, sigla })
-      navigate('/departamentos')
+      if (id_departamento) {
+        await updateDepartamento({ nome, sigla, id_departamento })
+      } else {
+        await insertDepartamento({ nome, sigla })
+      }
 
+      navigate('/departamentos')
     } catch (e) {
       const { code } = e.response.data.exception.code
       if (code === 'ER_DUP_ENTRY') {
         setError('Registro duplicado na base de dados')
       } else {
-        setError('Erro na inserção no registro')
+        const termo = id_departamento ? 'edição' : 'inserção'
+        setError(`Erro na ${termo} no registro`)
       }
     }
   }
 
+  const loadDepartamento = async () => {
+    try {
+      const resp = await getDepartamentoById({ id_departamento })
+
+      const { nome, sigla } = resp.data
+      setNome(nome)
+      setSigla(sigla)
+    } catch (e) {
+      console.log('ERRRO')
+    }
+  }
+
+
+  useEffect(() => {
+    if (id_departamento) {
+      loadDepartamento()
+    }
+  }, [])
 
   return (
     <>
@@ -103,12 +126,12 @@ const FormDepartamentos = () => {
 
           <Button
             type='submit'
-            label='Cadastrar'
+            label={id_departamento ? 'Atualizar' : 'Cadastrar'}
             severity='info'
             icon='pi pi-check'
             onClick={() => {
               if (formValidate()) {
-                createDepartamento()
+                saveDepartamento()
               }
             }}
           />

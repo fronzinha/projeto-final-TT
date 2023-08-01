@@ -91,11 +91,13 @@ const Departamentos = () => {
 
         <Column
           header='Nome'
+          headerClassName='w-[40%]'
           field='nome'
         />
 
         <Column
           header='Sigla'
+          headerClassName='w-[30%]'
           field='sigla'
         />
 
